@@ -3,7 +3,8 @@ package com.example.mdb.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.DialectOverride;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -26,7 +27,11 @@ public class UserDetails {
     private UserRole userRole;
 
     private LocalDate dateOfBirth;
+
+    @Column(updatable = false)
+    @CreationTimestamp
     private long createdAt;
+    @UpdateTimestamp
     private long updatedAt;
 
     @Version

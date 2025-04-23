@@ -1,10 +1,12 @@
 package com.example.mdb.controller;
 
 import com.example.mdb.dto.UserRegistrationRequest;
-import com.example.mdb.entity.User;
+import com.example.mdb.dto.UserResponse;
 import com.example.mdb.exception.DuplicateEmailException;
+import com.example.mdb.mapper.UserMapper;
 import com.example.mdb.response.RestBuilder;
 import com.example.mdb.service.UserService;
+import com.example.mdb.entity.UserDetails;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -26,12 +28,17 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
         try {
-            userService.register(request);
-            return ResponseEntity.ok("User registered successfully!");
+            // Register the user and get the UserDetails entity
+           UserResponse userResponse = userService.register(request);
+
+            // Return safe response
+            return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
         } catch (DuplicateEmailException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (OptimisticLockException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Version conflict occurred, please try again.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 }

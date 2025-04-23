@@ -1,74 +1,49 @@
 package com.example.mdb.service;
 
-import com.example.mdb.dto.UserRegistrationRequest;
+import com.example.mdb.dto.RegisterRequest;
 import com.example.mdb.dto.UserResponse;
-import com.example.mdb.entity.TheaterOwner;
-import com.example.mdb.entity.User;
 import com.example.mdb.entity.UserDetails;
-import com.example.mdb.exception.DuplicateEmailException;
-import com.example.mdb.mapper.UserMapper;
+import com.example.mdb.entity.UserDetails.UserRole;
 import com.example.mdb.repository.UserDetails.UserRepository;
-import jakarta.persistence.OptimisticLockException;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
-@AllArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    @Autowired
+    private UserRepository userRepository;
 
-
-    public UserResponse register(UserRegistrationRequest userRegistrationRequest) throws DuplicateEmailException {
-        if (userRepository.existsByEmail(userRegistrationRequest.email())) {
-            throw new DuplicateEmailException("Email already exists: " + userRegistrationRequest.email());
+    public UserResponse registerUser(RegisterRequest request) {
+        // Check if email already exists
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email is already registered.");
         }
 
-        // Generate a UUID for the user and the current timestamp for creation and update
-        long currentTime = System.currentTimeMillis();
-        UserDetails registeredUser = null;
+        // Create a new user
+        UserDetails user = new UserDetails();
+        user.setUsername(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
 
-        switch (userRegistrationRequest.userRole()) {
-            case USER -> {
-                User user = new User();
-                copyCommonFields(userRegistrationRequest, user, currentTime);
-                registeredUser = user;
-            }
+        // Set the user role, convert string to enum
+        user.setUserRole(UserRole.valueOf(request.getUserRole().toUpperCase())); // Ensure it's in uppercase
 
-            case THEATER_OWNER -> {
-                TheaterOwner theaterOwner = new TheaterOwner();
-                copyCommonFields(userRegistrationRequest, theaterOwner, currentTime);
-                registeredUser = theaterOwner;
-            }
-        }
+        // Set phone number if available, otherwise set an empty string or null
+        user.setPhoneNumber(""); // You can update this logic based on how you want to handle phone numbers
 
-        try {
-            UserDetails savedUser = userRepository.save(registeredUser);
-            return UserMapper.toUserResponse(savedUser);  // Attempt to save the user
-        } catch (OptimisticLockException e) {
-            logger.error("Version conflict detected: {}", e.getMessage());
-            throw new OptimisticLockException("Could not save user due to version conflict");
-        } catch (Exception e) {
-            logger.error("An unexpected error occurred: {}", e.getMessage());
-            throw new RuntimeException("An unexpected error occurred while registering the user", e);
-        }
-    }
+        // Optionally handle dateOfBirth if it's part of RegisterRequest
 
+        // Save the user to the database
+        UserDetails savedUser = userRepository.save(user);
 
-    // Method to copy common fields from DTO to User or TheaterOwner entity
-    private void copyCommonFields(UserRegistrationRequest source, UserDetails target, long currentTime) {
-
-        target.setUsername(source.username());
-        target.setEmail(source.email());
-        target.setPassword(source.password());
-        target.setPhoneNumber(source.phoneNumber());
-        target.setUserRole(source.userRole());
-        target.setCreatedAt(currentTime);
-        target.setUpdatedAt(currentTime);
+        // Return a UserResponse with relevant details
+        return new UserResponse(
+                savedUser.getUserid(),
+                savedUser.getUsername(),
+                savedUser.getEmail(),
+                savedUser.getUserRole().name(),
+                savedUser.getPhoneNumber()
+        );
     }
 }

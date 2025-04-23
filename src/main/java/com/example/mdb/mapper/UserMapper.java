@@ -5,7 +5,7 @@ import com.example.mdb.entity.UserDetails;
 
 public class UserMapper {
 
-    public static UserResponse toUserResponse(UserDetails userDetails){
+    public static UserResponse toUserResponse(UserDetails userDetails) {
         return new UserResponse(
                 userDetails.getUserid(),
                 userDetails.getUsername(),

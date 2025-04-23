@@ -1,6 +1,6 @@
 package com.example.mdb.controller;
 
-import com.example.mdb.dto.RegisterRequest;
+import com.example.mdb.dto.UserRegistrationDTO;
 import com.example.mdb.dto.UserResponse;
 import com.example.mdb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +16,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponse> registerUser(@RequestBody RegisterRequest registerRequest) {
-        // Register the user and get the response DTO
-        UserResponse registeredUser = userService.registerUser(registerRequest);
-
-        // Return the response with CREATED status
+    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRegistrationDTO userRegistrationDTO) {
+        UserResponse registeredUser = userService.registerUser(userRegistrationDTO);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
 }

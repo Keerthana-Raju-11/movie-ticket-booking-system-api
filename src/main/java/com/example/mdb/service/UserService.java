@@ -2,8 +2,10 @@ package com.example.mdb.service;
 
 import com.example.mdb.dto.UserRequest;
 import com.example.mdb.dto.UserResponse;
+import com.example.mdb.entity.User;
 import com.example.mdb.entity.UserDetails;
 import com.example.mdb.repository.UserDetails.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,5 +51,19 @@ public class UserService {
 
     public Optional<UserDetails> getActiveUserById(UUID id){
         return userRepository.findByUseridAndIsDeletedFalse(id);
+    }
+
+    @Transactional
+    public boolean softDeleteUserByEmail(String email){
+        Optional<UserDetails> userOPt = userRepository.findByEmail(email);
+
+        if(userOPt.isPresent()){
+            UserDetails user = userOPt.get();
+            user.setDeleted(true);
+            user.setDeletedAt(Instant.now());
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 public class UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID userid;
     private String username;
     private String email;
@@ -36,6 +36,10 @@ public class UserDetails {
 
     @Version
     private Integer version;
+
+    public UUID getId() {
+        return userid;
+    }
 
     public enum UserRole{
         USER,

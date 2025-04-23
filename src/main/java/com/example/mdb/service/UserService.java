@@ -1,10 +1,12 @@
 package com.example.mdb.service;
 
 import com.example.mdb.dto.UserRegistrationRequest;
+import com.example.mdb.dto.UserResponse;
 import com.example.mdb.entity.TheaterOwner;
 import com.example.mdb.entity.User;
 import com.example.mdb.entity.UserDetails;
 import com.example.mdb.exception.DuplicateEmailException;
+import com.example.mdb.mapper.UserMapper;
 import com.example.mdb.repository.UserDetails.UserRepository;
 import jakarta.persistence.OptimisticLockException;
 import lombok.AllArgsConstructor;
@@ -22,7 +24,7 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 
-    public UserDetails register(UserRegistrationRequest userRegistrationRequest) throws DuplicateEmailException {
+    public UserResponse register(UserRegistrationRequest userRegistrationRequest) throws DuplicateEmailException {
         if (userRepository.existsByEmail(userRegistrationRequest.email())) {
             throw new DuplicateEmailException("Email already exists: " + userRegistrationRequest.email());
         }
@@ -46,7 +48,8 @@ public class UserService {
         }
 
         try {
-            return userRepository.save(registeredUser);  // Attempt to save the user
+            UserDetails savedUser = userRepository.save(registeredUser);
+            return UserMapper.toUserResponse(savedUser);  // Attempt to save the user
         } catch (OptimisticLockException e) {
             logger.error("Version conflict detected: {}", e.getMessage());
             throw new OptimisticLockException("Could not save user due to version conflict");

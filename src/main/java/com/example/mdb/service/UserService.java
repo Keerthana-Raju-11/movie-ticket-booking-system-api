@@ -1,7 +1,6 @@
 package com.example.mdb.service;
 
-import com.example.mdb.dto.RegisterRequest;
-import com.example.mdb.dto.UserRegistrationDTO;
+import com.example.mdb.dto.UserRequest;
 import com.example.mdb.dto.UserResponse;
 import com.example.mdb.entity.UserDetails;
 import com.example.mdb.repository.UserDetails.UserRepository;
@@ -17,16 +16,19 @@ public class UserService {
     @Autowired
     private UserMapperService userMapperService;
 
-    public UserResponse registerUser(UserRegistrationDTO dto) {
-        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered.");
-        }
+    public UserResponse updateUser(String email, UserRequest userRequest) {
+        // Find the user by email
+        UserDetails user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserDetails user = userMapperService.mapToEntity(dto); // Map DTO to entity
-        UserDetails savedUser = userRepository.save(user);
+        // Update the fields
+        user.setUsername(userRequest.getUsername());
+        user.setPhoneNumber(userRequest.getPhoneNumber());
 
-        return userMapperService.mapToResponse(savedUser); // Return mapped response
+        // Save the updated user
+        UserDetails updatedUser = userRepository.save(user);
+
+        // Map the updated user to a response DTO
+        return userMapperService.mapToResponse(updatedUser);
     }
-
 }
-

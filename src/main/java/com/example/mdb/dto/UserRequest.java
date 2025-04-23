@@ -1,14 +1,9 @@
 package com.example.mdb.dto;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserRequest {
-    private String name;
+    private String username;
     private String phoneNumber;
-    private String Email;
-    private String Password;
-    private String userRole;
 }

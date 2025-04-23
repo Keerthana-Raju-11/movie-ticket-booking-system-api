@@ -1,6 +1,7 @@
 package com.example.mdb.controller;
 
 import com.example.mdb.dto.UserRegistrationDTO;
+import com.example.mdb.dto.UserRequest;
 import com.example.mdb.dto.UserResponse;
 import com.example.mdb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRegistrationDTO userRegistrationDTO) {
-        UserResponse registeredUser = userService.registerUser(userRegistrationDTO);
-        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    @PutMapping
+    public ResponseEntity<UserResponse> updatedUser(
+            @RequestParam String email,
+            @RequestBody UserRequest userRequest){
+        UserResponse updatedUser = userService.updateUser(email, userRequest);
+        return new ResponseEntity<>(updatedUser , HttpStatus.OK);
     }
+
 }

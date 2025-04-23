@@ -28,16 +28,29 @@ public class UserController {
 //        UserResponse updatedUser = userService.updateUser(email, userRequest);
 //        return new ResponseEntity<>(updatedUser , HttpStatus.OK);
 //    }
+//    Soft delete
+//    @DeleteMapping("/{id}")
+//    public String softDeleteUser(@PathVariable UUID id){
+//        userService.softDeleteUser(id);
+//        return "User deleted successfully.";
+//    }
+//
+//    @GetMapping("/{id}")
+//    public Optional<UserDetails> getUser(@PathVariable UUID id){
+//        return userService.getActiveUserById(id);
+//    }
+    //Delete USer
 
-    @DeleteMapping("/{id}")
-    public String softDeleteUser(@PathVariable UUID id){
-        userService.softDeleteUser(id);
-        return "User deleted successfully.";
-    }
+@DeleteMapping("/delete")
+public ResponseEntity<String> softDeleteUser(@RequestParam String email) {
+    boolean isDeleted = userService.softDeleteUserByEmail(email);
 
-    @GetMapping("/{id}")
-    public Optional<UserDetails> getUser(@PathVariable UUID id){
-        return userService.getActiveUserById(id);
+    if (isDeleted) {
+        return new ResponseEntity<>("User deleted successfully.", HttpStatus.OK);
+    } else {
+        return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
     }
+}
+
 
 }

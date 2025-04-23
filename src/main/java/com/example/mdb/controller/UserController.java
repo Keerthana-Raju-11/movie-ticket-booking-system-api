@@ -1,12 +1,15 @@
 package com.example.mdb.controller;
 
-import com.example.mdb.dto.UserRegistrationDTO;
+import com.example.mdb.dto.UserRegistrationRequest;
+import com.example.mdb.entity.User;
 import com.example.mdb.exception.DuplicateEmailException;
 import com.example.mdb.response.RestBuilder;
 import com.example.mdb.service.UserService;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +24,14 @@ public class UserController {
     private RestBuilder restBuilder;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDTO userDTO) throws DuplicateEmailException {
-        userService.register(userDTO);
-        return ResponseEntity.ok("User registered successfully");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
+        try {
+            userService.register(request);
+            return ResponseEntity.ok("User registered successfully!");
+        } catch (DuplicateEmailException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (OptimisticLockException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Version conflict occurred, please try again.");
+        }
     }
-
 }

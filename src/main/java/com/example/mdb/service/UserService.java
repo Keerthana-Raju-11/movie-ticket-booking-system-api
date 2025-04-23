@@ -1,12 +1,17 @@
 package com.example.mdb.service;
 
+import com.example.mdb.dto.UserRegistrationRequest;
 import com.example.mdb.entity.TheaterOwner;
 import com.example.mdb.entity.User;
 import com.example.mdb.entity.UserDetails;
 import com.example.mdb.exception.DuplicateEmailException;
 import com.example.mdb.repository.UserDetails.UserRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
@@ -14,47 +19,53 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public UserDetails register(UserDetails userDetails) throws DuplicateEmailException {
-        if (userRepository.existsByEmail(userDetails.getEmail())) {
-            throw new DuplicateEmailException("Email already exists: " + userDetails.getEmail());
+
+    public UserDetails register(UserRegistrationRequest userRegistrationRequest) throws DuplicateEmailException {
+        if (userRepository.existsByEmail(userRegistrationRequest.email())) {
+            throw new DuplicateEmailException("Email already exists: " + userRegistrationRequest.email());
         }
 
-        if (userDetails.getUserid() == null) {
-            userDetails.setUserid(UUID.randomUUID());
-        }
-
-        userDetails.setCreatedAt(System.currentTimeMillis());
-        userDetails.setUpdatedAt(System.currentTimeMillis());
-
+        // Generate a UUID for the user and the current timestamp for creation and update
+        long currentTime = System.currentTimeMillis();
         UserDetails registeredUser = null;
 
-        switch (userDetails.getUserRole()) {
+        switch (userRegistrationRequest.userRole()) {
             case USER -> {
                 User user = new User();
-                copyCommonFields(userDetails, user);
+                copyCommonFields(userRegistrationRequest, user, currentTime);
                 registeredUser = user;
             }
 
             case THEATER_OWNER -> {
                 TheaterOwner theaterOwner = new TheaterOwner();
-                copyCommonFields(userDetails, theaterOwner);
+                copyCommonFields(userRegistrationRequest, theaterOwner, currentTime);
                 registeredUser = theaterOwner;
             }
         }
 
-        return userRepository.save(registeredUser);
+        try {
+            return userRepository.save(registeredUser);  // Attempt to save the user
+        } catch (OptimisticLockException e) {
+            logger.error("Version conflict detected: {}", e.getMessage());
+            throw new OptimisticLockException("Could not save user due to version conflict");
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred: {}", e.getMessage());
+            throw new RuntimeException("An unexpected error occurred while registering the user", e);
+        }
     }
 
-    private void copyCommonFields(UserDetails source, UserDetails target) {
-        target.setUserid(source.getUserid());
-        target.setUsername(source.getUsername());
-        target.setEmail(source.getEmail());
-        target.setPassword(source.getPassword());
-        target.setPhoneNumber(source.getPhoneNumber());
-        target.setUserRole(source.getUserRole());
-        target.setDateOfBirth(source.getDateOfBirth());
-        target.setCreatedAt(source.getCreatedAt());
-        target.setUpdatedAt(source.getUpdatedAt());
+
+    // Method to copy common fields from DTO to User or TheaterOwner entity
+    private void copyCommonFields(UserRegistrationRequest source, UserDetails target, long currentTime) {
+
+        target.setUsername(source.username());
+        target.setEmail(source.email());
+        target.setPassword(source.password());
+        target.setPhoneNumber(source.phoneNumber());
+        target.setUserRole(source.userRole());
+        target.setCreatedAt(currentTime);
+        target.setUpdatedAt(currentTime);
     }
 }

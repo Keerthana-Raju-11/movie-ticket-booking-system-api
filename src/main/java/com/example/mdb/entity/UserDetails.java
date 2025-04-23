@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public class UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID userid;
+    private UUID userid;  // Field name is 'userid' here
 
     private String username;
 
@@ -40,6 +41,9 @@ public class UserDetails {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    private boolean isDeleted;
+    private Instant deletedAt;
 
     @Version
     private Integer version;

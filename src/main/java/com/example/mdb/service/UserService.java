@@ -17,19 +17,16 @@ public class UserService {
     @Autowired
     private UserMapperService userMapperService;
 
-    public UserResponse registerUser(UserRegistrationDTO userRegistrationDTO) {
-        // Check if email already exists
-        if (userRepository.findByEmail(userRegistrationDTO.getEmail()).isPresent()) {
-            throw new RuntimeException("Email is already registered.");
+    public UserResponse registerUser(UserRegistrationDTO dto) {
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already registered.");
         }
 
-        // Map the DTO to the respective entity
-        UserDetails user = userMapperService.mapToEntity(userRegistrationDTO);
-
-        // Persist the user
+        UserDetails user = userMapperService.mapToEntity(dto); // Map DTO to entity
         UserDetails savedUser = userRepository.save(user);
 
-        // Return a response DTO
-        return new UserResponse(savedUser);
+        return userMapperService.mapToResponse(savedUser); // Return mapped response
     }
+
 }
+

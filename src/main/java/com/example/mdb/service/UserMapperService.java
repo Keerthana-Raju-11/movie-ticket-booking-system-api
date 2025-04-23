@@ -1,31 +1,29 @@
 package com.example.mdb.service;
 
 import com.example.mdb.dto.UserRegistrationDTO;
+import com.example.mdb.dto.UserResponse;
 import com.example.mdb.entity.UserDetails;
-import com.example.mdb.entity.UserDetails.UserRole;
-import com.example.mdb.entity.User;
-import com.example.mdb.entity.TheaterOwner;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class UserMapperService {
+    public UserResponse mapToResponse(UserDetails user) {
+        return new UserResponse(
+                user.getUserid(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getUserRole().name(),
+                user.getPhoneNumber()
+        );
+    }
 
     public UserDetails mapToEntity(UserRegistrationDTO dto) {
-        UserRole role = UserRole.valueOf(dto.getUserRole().toUpperCase());
-        UserDetails user;
-
-        if (role == UserRole.THEATER_OWNER) {
-            user = new TheaterOwner();
-        } else {
-            user = new User();
-        }
-
+        UserDetails user = new UserDetails();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // Consider hashing the password in real use cases
+        user.setPassword(dto.getPassword());
         user.setPhoneNumber(dto.getPhoneNumber());
-        user.setUserRole(role);
-
+        user.setUserRole(UserDetails.UserRole.valueOf(dto.getUserRole().toUpperCase()));
         return user;
     }
 }

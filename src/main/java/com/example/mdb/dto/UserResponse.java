@@ -13,24 +13,21 @@ public class UserResponse {
     private final String userrole;
     private final String phoneNumber;
 
-    // Constructor for custom UserResponse with specific parameters
+    // Constructor to convert UserDetails entity to DTO
+    public UserResponse(UserDetails user) {
+        this.id = user.getUserid();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.userrole = user.getUserRole().name(); // Correctly map userRole from enum
+        this.phoneNumber = user.getPhoneNumber();  // Ensure phone number is properly set
+    }
+
+    // Constructor to accept individual fields
     public UserResponse(UUID id, String username, String email, String userrole, String phoneNumber) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.userrole = userrole;
         this.phoneNumber = phoneNumber;
-    }
-
-    // Constructor to create UserResponse from UserDetails entity
-    public UserResponse(UserDetails updatedUser) {
-        this.id = updatedUser.getId();
-        this.username = updatedUser.getUsername();
-        this.email = updatedUser.getEmail();
-        this.userrole = updatedUser.getUserRole().name();  // Assuming userRole is an enum, converting to string
-        this.phoneNumber = updatedUser.getPhoneNumber();
-    }
-
-    public UserResponse(String s) {
     }
 }

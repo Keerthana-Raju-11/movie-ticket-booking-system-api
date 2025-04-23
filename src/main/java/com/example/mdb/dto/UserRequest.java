@@ -8,5 +8,7 @@ import lombok.*;
 public class UserRequest {
     private String name;
     private String phoneNumber;
-
+    private String Email;
+    private String Password;
+    private String userRole;
 }

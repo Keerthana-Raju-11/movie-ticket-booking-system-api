@@ -1,22 +1,33 @@
 package com.example.mdb.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.Setter;
+import java.time.LocalDate;
 
 @Getter
-@AllArgsConstructor
+@Setter
 public class UserRegistrationDTO {
-    @NonNull
-    private final String username;
 
-    @NonNull
-    private final String email;
+    @NotBlank(message = "Username cannot be blank")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    private String username;
 
-    @NonNull
-    private final String password;
+    @NotBlank(message = "Email cannot be null")
+    @Email(message = "Invalid email format")
+    private String email;
 
-    private final String phoneNumber;
-    private final String userRole; // userRole could be "USER" or "THEATER_OWNER"
+    @NotBlank(message = "Password cannot be null")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
+    private String password;
+
+    @NotBlank(message = "Phone number cannot be null")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
+    private String phoneNumber;
+
+    @NotNull(message = "Date of birth cannot be null")
+    @Past(message = "Date of birth must be in the past")
+    private LocalDate dateOfBirth;
+
+    private String userRole;
 }
-

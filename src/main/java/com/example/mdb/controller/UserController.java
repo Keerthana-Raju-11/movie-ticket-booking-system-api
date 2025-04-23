@@ -1,13 +1,16 @@
 package com.example.mdb.controller;
 
-import com.example.mdb.dto.UserRegistrationDTO;
+
 import com.example.mdb.dto.UserRequest;
 import com.example.mdb.dto.UserResponse;
 import com.example.mdb.entity.UserDetails;
+import com.example.mdb.dto.UserRegistrationDTO;
 import com.example.mdb.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -41,16 +44,18 @@ public class UserController {
 //    }
     //Delete USer
 
-@DeleteMapping("/delete")
-public ResponseEntity<String> softDeleteUser(@RequestParam String email) {
-    boolean isDeleted = userService.softDeleteUserByEmail(email);
-
-    if (isDeleted) {
-        return new ResponseEntity<>("User deleted successfully.", HttpStatus.OK);
-    } else {
-        return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
+//
+@PostMapping("/register")
+public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO, BindingResult result) {
+    if (result.hasErrors()) {
+        // Collecting validation error messages
+        StringBuilder errorMessages = new StringBuilder();
+        result.getAllErrors().forEach(error -> errorMessages.append(error.getDefaultMessage()).append("\n"));
+        return new ResponseEntity<>(errorMessages.toString(), HttpStatus.BAD_REQUEST);
     }
+    userService.registerUser(userRegistrationDTO);
+    return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);
 }
 
-
 }
+

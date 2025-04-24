@@ -4,7 +4,7 @@ import com.example.mdb.dto.UserRegistrationDTO;
 import com.example.mdb.entity.UserDetails;
 import com.example.mdb.repository.UserDetails.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,24 +14,19 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder; // For password hashing
+    private PasswordEncoder passwordEncoder; // ✅ Use the interface, not the class
 
-    // Register method for user
     public String register(UserRegistrationDTO userRegistrationDTO) {
-        // Check if user with the same email already exists
         if (userRepository.existsByEmail(userRegistrationDTO.getEmail())) {
             throw new RuntimeException("Email is already registered.");
         }
 
-        // Create new User entity
         UserDetails newUser = new UserDetails();
         newUser.setUsername(userRegistrationDTO.getUsername());
         newUser.setEmail(userRegistrationDTO.getEmail());
-        newUser.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword())); // Hash the password before saving
+        newUser.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
 
-        // Save user to the database
         userRepository.save(newUser);
-
         return "User successfully registered!";
     }
 }

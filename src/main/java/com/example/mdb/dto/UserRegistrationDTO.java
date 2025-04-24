@@ -1,33 +1,34 @@
 package com.example.mdb.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.Setter;
-import java.time.LocalDate;
+
 
 @Getter
-@Setter
 public class UserRegistrationDTO {
 
-    @NotBlank(message = "Username cannot be blank")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "Username is mandatory")
     private String username;
 
-    @NotBlank(message = "Email cannot be null")
-    @Email(message = "Invalid email format")
-    private String email;
-
-    @NotBlank(message = "Password cannot be null")
-    @Size(min = 6, message = "Password must be at least 6 characters long")
+    @NotBlank(message = "Password is mandatory")
     private String password;
 
-    @NotBlank(message = "Phone number cannot be null")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
-    private String phoneNumber;
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is mandatory")
+    private String email;
 
-    @NotNull(message = "Date of birth cannot be null")
-    @Past(message = "Date of birth must be in the past")
-    private LocalDate dateOfBirth;
+    // Getter and Setter methods
 
-    private String userRole;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

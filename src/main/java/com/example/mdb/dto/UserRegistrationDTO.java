@@ -1,22 +1,34 @@
 package com.example.mdb.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NonNull;
+
 
 @Getter
-@AllArgsConstructor
 public class UserRegistrationDTO {
-    @NonNull
-    private final String username;
 
-    @NonNull
-    private final String email;
+    @NotBlank(message = "Username is mandatory")
+    private String username;
 
-    @NonNull
-    private final String password;
+    @NotBlank(message = "Password is mandatory")
+    private String password;
 
-    private final String phoneNumber;
-    private final String userRole; // userRole could be "USER" or "THEATER_OWNER"
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is mandatory")
+    private String email;
+
+    // Getter and Setter methods
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
-

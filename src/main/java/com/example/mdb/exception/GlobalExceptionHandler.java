@@ -1,37 +1,27 @@
 package com.example.mdb.exception;
 
+import com.example.mdb.response.ResponseStructure;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle validation errors (e.g. @Valid/@Validated DTOs)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+    // Example exception handler method
+    @ExceptionHandler(SomeException.class)
+    public ResponseEntity<ResponseStructure<List<String>>> handleSomeException(SomeException ex) {
+        List<String> errorMessages = List.of("Error occurred", "Invalid input");
 
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errors.put(fieldName, message);
-        });
+        ResponseStructure<List<String>> response = ResponseStructure.<List<String>>builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("There was an error processing the request")
+                .data(errorMessages)
+                .build();
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    // You can also handle other exceptions (optional)
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }

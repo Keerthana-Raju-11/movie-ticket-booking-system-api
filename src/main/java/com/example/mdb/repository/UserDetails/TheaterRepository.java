@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TheaterRepository extends JpaRepository<Theater, UUID> {
-    @Query("SELECT t FROM Theater t WHERE HEX(t.theaterId) = :theaterId")
-    Optional<Theater> findByTheaterId(@Param("theaterId") String theaterId);
+    Optional<Theater> findByTheaterId(UUID theaterId);
 }
 

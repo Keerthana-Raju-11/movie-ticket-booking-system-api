@@ -17,4 +17,14 @@ public class RestBuilder {
         return ResponseEntity.status(status).body(structure);
 
     }
+
+    public ResponseEntity<ResponseStructure<String>> error(HttpStatus httpStatus, String message, String errorDetails) {
+        ResponseStructure<String> structure = ResponseStructure
+                .<String>builder()
+                .status(httpStatus.value())
+                .message(message)
+                .data(errorDetails)  // This would be the error message or details
+                .build();
+        return ResponseEntity.status(httpStatus).body(structure);
+    }
 }

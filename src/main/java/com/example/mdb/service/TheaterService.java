@@ -4,6 +4,7 @@ import com.example.mdb.dto.TheaterRequest;
 import com.example.mdb.dto.TheaterResponse;
 import com.example.mdb.entity.Theater;
 import com.example.mdb.entity.UserDetails;
+import com.example.mdb.exception.TheaterNotFoundException;
 import com.example.mdb.exception.UserNotFoundException;
 import com.example.mdb.repository.UserDetails.TheaterRepository;
 import com.example.mdb.repository.UserDetails.UserRepository;
@@ -68,4 +69,13 @@ public class TheaterService {
             throw new RuntimeException("An error occurred while creating the theater: " + e.getMessage());
         }
     }
+
+    public Theater getTheaterById(UUID theaterId) {
+        String hexId = String.format("%032x", theaterId); // Convert UUID to hex string
+        return theaterRepository.findByTheaterId(hexId)
+                .orElseThrow(() -> new TheaterNotFoundException("Theater with ID " + theaterId + " not found"));
+    }
+
+    //Method to get a theater by ID
+
 }

@@ -2,6 +2,7 @@ package com.example.mdb.service;
 
 import com.example.mdb.dto.TheaterRequest;
 import com.example.mdb.dto.TheaterResponse;
+import com.example.mdb.dto.TheaterUpdateDTO;
 import com.example.mdb.entity.Theater;
 import com.example.mdb.entity.UserDetails;
 import com.example.mdb.exception.TheaterNotFoundException;
@@ -33,7 +34,6 @@ public class TheaterService {
         // Check if the user exists
         UserDetails user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
-
 
         // Create a new theater
         Theater theater = new Theater();
@@ -71,11 +71,34 @@ public class TheaterService {
     }
 
     public Theater getTheaterById(UUID theaterId) {
-        String hexId = String.format("%032x", theaterId); // Convert UUID to hex string
-        return theaterRepository.findByTheaterId(hexId)
+        // Assuming the repository expects UUID, directly use UUID without converting to hex
+        return theaterRepository.findById(theaterId)  // Assuming `theaterRepository.findById` is using UUID as the key
                 .orElseThrow(() -> new TheaterNotFoundException("Theater with ID " + theaterId + " not found"));
     }
 
-    //Method to get a theater by ID
+    @Transactional
+    public Theater updateTheater(UUID theaterId , TheaterUpdateDTO theaterUpdateDTO){
+        Theater theater = theaterRepository.findByTheaterId(theaterId)
+                .orElseThrow(()-> new TheaterNotFoundException("Theater with ID"+theaterId+"not found"));
+
+        if (theaterUpdateDTO.getName() != null) {
+            theater.setName(theaterUpdateDTO.getName());
+        }
+        if (theaterUpdateDTO.getAddress() != null) {
+            theater.setAddress(theaterUpdateDTO.getAddress());
+        }
+        if (theaterUpdateDTO.getCity() != null) {
+            theater.setCity(theaterUpdateDTO.getCity());
+        }
+        if (theaterUpdateDTO.getLandmark() != null) {
+            theater.setLandmark(theaterUpdateDTO.getLandmark());
+        }
+
+        // Update the updated_at timestamp to the current time
+        theater.setUpdatedAt(Instant.now());
+
+        // Save the updated theater back to the database
+        return theaterRepository.save(theater);  // This should return the updated Theater entity
+    }
 
 }
